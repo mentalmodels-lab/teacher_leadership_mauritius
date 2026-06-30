@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Evaluation: Personal Tendencies & Teaching Style</title>
+    <title>Teacher Evaluation: Teaching Style Profile</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --primary: #059669; --success: #10b981; --bg: #f0fdf4; --card: #ffffff; --text: #1e293b; --border: #cbd5e1; }
@@ -54,7 +54,7 @@
 <body>
 
 <div class="container">
-    <h1>🇲🇺 Teacher Tendencies & Teaching Style Profile</h1>
+    <h1>🇲🇺 Teaching Style Profile</h1>
     
     <div class="tab-buttons" id="tab-headers" style="display: none;">
         <button class="tab-btn active" id="tab1-btn">Step 1: Behavioural Style</button>
@@ -63,10 +63,12 @@
 
     <div id="section0" class="survey-section active">
         <h2>Teacher Information</h2>
-        <p style="text-align:center; color:#64748b;">Please enter your basic professional profile before starting the diagnostic survey.</p>
+        <p style="text-align:center; color:#64748b; margin-bottom: 10px;">Please enter your profile details before starting the diagnostic survey.</p>
+        <p style="text-align:center; color:#e11d48; font-weight: 500; font-size: 0.95rem; margin-top: 0;">* You do not need to use your real name. Feel free to use a nickname or pseudonym to maintain anonymity, as school and field identification fields are already provided.</p>
+        
         <div style="max-width: 500px; margin: 40px auto 0 auto;">
             <div class="input-group"><label for="user-school">School Name</label><input type="text" id="user-school" placeholder="e.g., Royal College Port Louis"></div>
-            <div class="input-group"><label for="user-nickname">Teacher Name / Nickname</label><input type="text" id="user-nickname" placeholder="e.g., Mr. Smith"></div>
+            <div class="input-group"><label for="user-nickname">Teacher Name / Nickname (Anonymous)</label><input type="text" id="user-nickname" placeholder="e.g., Prof. X or BlueSky"></div>
             <div class="input-group"><label for="user-subject">Subject / Grade</label><input type="text" id="user-subject" placeholder="e.g., Mathematics / Grade 10"></div>
             <button class="btn-submit" onclick="startSurvey()">Start Diagnostic Profile 🚀</button>
         </div>
@@ -125,18 +127,18 @@
     let currentSubPage = 1;
     let rawResultText = ""; 
 
-    // 🇲🇺 English + Mauritian Creole 1:1 mapping for local alignment
+    // 🇲🇺 English + Mauritian Creole 1:1 mapping (Fixed Javascript Syntax Error)
     const discData = [
         [{en:"Lively", cr:"Vivan"}, {en:"Adventurous", cr:"Aventire"}, {en:"Analytical", cr:"Analitik"}, {en:"Easy-going", cr:"Trankil"}],
         [{en:"Cheerful", cr:"Zwaye"}, {en:"Persuasive", cr:"Persuazif"}, {en:"Strong-willed", cr:"Tete dir"}, {en:"Quiet", cr:"Pozé"}],
         [{en:"Sociable", cr:"Sosial"}, {en:"Self-determined", cr:"Determiné"}, {en:"Self-sacrificing", cr:"Donn so lavi"}, {en:"Submissive", cr:"Obeisan"}],
         [{en:"Charming", cr:"Sarmant"}, {en:"Competitive", cr:"Konpetitif"}, {en:"Considerate", cr:"Konsideré"}, {en:"Restrained", cr:"Kalkilé"}],
-        [{en:"Innovative", en:"Innovative", cr:"Kreatif"}, {en:"Competent", cr:"Kapab"}, {en:"Respectful", cr:"Respekté"}, {en:"Reserved", cr:"Diskre"}],
+        [{en:"Innovative", cr:"Kreatif"}, {en:"Competent", cr:"Kapab"}, {en:"Respectful", cr:"Respekté"}, {en:"Reserved", cr:"Diskre"}],
         [{en:"Animated", cr:"Plen lenerzi"}, {en:"Independent", cr:"Indepandan"}, {en:"Sensitive", cr:"Sansib"}, {en:"Accepting", cr:"Aksepté"}],
         [{en:"Encouraging", cr:"Ankourazan"}, {en:"Assertive", cr:"Konfidan"}, {en:"Planful", cr:"Organisé"}, {en:"Patient", cr:"Pasyan"}],
         [{en:"Impulsive", cr:"Spontané"}, {en:"Confident", cr:"Sır de li"}, {en:"Systematic", cr:"Sistematik"}, {en:"Taciturn", cr:"Pa koz boukou"}],
         [{en:"Optimistic", cr:"Pozitif"}, {en:"Frank", cr:"Frank"}, {en:"Orderly", cr:"Met ord"}, {en:"Kind", cr:"Zanti"}],
-        [{en:"Humorous", cr:"Komik"}, {en:"Firm", cr:"Ferm"}, {en:"Conscientious", cr:"Seryé"}, {en:"Friendly", cr:"Kamrad"}], // Page 1 Ends
+        [{en:"Humorous", cr:"Komik"}, {en:"Firm", cr:"Ferm"}, {en:"Conscientious", cr:"Seryé"}, {en:"Friendly", cr:"Kamrad"}],
         
         [{en:"Delightful", cr:"Gayar"}, {en:"Fearless", cr:"Pa per naryen"}, {en:"Meticulous", cr:"Pran swen"}, {en:"Affable", cr:"Akueyan"}],
         [{en:"Jovial", cr:"Kontan riye"}, {en:"Confident", cr:"Asiré"}, {en:"Dignified", cr:"Onotab"}, {en:"Stable", cr:"Stabil"}],
@@ -146,19 +148,19 @@
         [{en:"Talkative", cr:"Kozalor"}, {en:"Achieving", cr:"Gany rezilta"}, {en:"Cautious", cr:"Pridan"}, {en:"Generous", cr:"Zenere"}],
         [{en:"Enthusiastic", cr:"Sover"}, {en:"Responsible", cr:"Responsab"}, {en:"Loyal", cr:"Fidel"}, {en:"Good listener", cr:"Ekout bien"}],
         [{en:"Showy", cr:"Flasi"}, {en:"Leadership", cr:"Komandan"}, {en:"Organized", cr:"Regle"}, {en:"Contented", cr:"Kontan mem"}],
-        [{en:"Popular", cr:"Popiler"}, {en:"Productive", cr:"Produtif"}, {en:"Perfectionistic", cr:"Parfe"}, {en:"Comforting", cr:"Konsolaz}].toLowerCase()],
-        [{en:"Vibrant", cr:"Vibran"}, {en:"Bold", cr:"Kourazyé"}, {en:"Polite", cr:"Polite"}, {en:"Balanced", cr:"Ekilibré"}], // Page 2 Ends
+        [{en:"Popular", cr:"Popiler"}, {en:"Productive", cr:"Produtif"}, {en:"Perfectionistic", cr:"Parfe"}, {en:"Comforting", cr:"Konsolaz"}],
+        [{en:"Vibrant", cr:"Vibran"}, {en:"Bold", cr:"Kourazyé"}, {en:"Polite", cr:"Polite"}, {en:"Balanced", cr:"Ekilibré"}],
         
         [{en:"Cheeky", cr:"Kokin"}, {en:"Overbearing", cr:"Domi-domi"}, {en:"Shy", cr:"Sofi"}, {en:"Expressionless", cr:"Pa montre naryen"}],
         [{en:"Disorganized", cr:"An-dezor"}, {en:"Cold", cr:"Glase"}, {en:"Unforgiving", cr:"Gardan rankın"}, {en:"Unenthusiastic", cr:"Pa tande"}],
         [{en:"Repetitive", cr:"Radote"}, {en:"Confrontational", cr:"Sers lager"}, {en:"Resentful", cr:"Ankoler"}, {en:"Reluctant", cr:"Pa le ale"}],
-        [{en:"Forgetful", cr:"Bliyé"}, {en:"Blunt", cr:"Kase-brize"}, {en:"Fussy", cr:"Takine"}, {en:"Fearful", cr:"Poltro"},],
+        [{en:"Forgetful", cr:"Bliyé"}, {en:"Blunt", cr:"Kase-brize"}, {en:"Fussy", cr:"Takine"}, {en:"Fearful", cr:"Poltro"}],
         [{en:"Interrupting", cr:"Koup koze"}, {en:"Impatient", cr:"Pa kapav tann"}, {en:"Insecure", cr:"Pa asiré"}, {en:"Indecisive", cr:"Douté"}],
         [{en:"Unpredictable", cr:"Bizar"}, {en:"Unaffectionate", cr:"Dır"}, {en:"Unpopular", cr:"Pa kontan li"}, {en:"Passive", cr:"Asiz tousıl"}],
         [{en:"Haphazard", cr:"Melanzé"}, {en:"Stubborn", cr:"Latet dir"}, {en:"Hard to please", cr:"Difikıl"}, {en:"Hesitant", cr:"Tike"}],
         [{en:"People-pleasing", cr:"Suiv lezot"}, {en:"Proud", cr:"Fier dor"}, {en:"Pessimistic", cr:"Nwar mem"}, {en:"Mediocre", cr:"Normal-normal"}],
         [{en:"Short-tempered", cr:"Koler sode"}, {en:"Argumentative", cr:"Kontredır"}, {en:"Alienated", cr:"Izolé"}, {en:"Aimless", cr:"Pa konn kot ale"}],
-        [{en:"Simplistic", cr:"Tandis"}, {en:"Conceited", cr:"Gran nwar"}, {en:"Negative", cr:"Pa bon"}, {en:"Undemonstrative", cr:"Kasyet lide"}], // Page 3 Ends
+        [{en:"Simplistic", cr:"Tandis"}, {en:"Conceited", cr:"Gran nwar"}, {en:"Negative", cr:"Pa bon"}, {en:"Undemonstrative", cr:"Kasyet lide"}],
         
         [{en:"Boastful", cr:"Vandere"}, {en:"Workaholic", cr:"T rasi"}, {en:"Introverted", cr:"Kasyet lavi"}, {en:"Worrisome", cr:"Trakasé"}],
         [{en:"Talkative", cr:"Koz-kozé"}, {en:"Blunt", cr:"Dır mém"}, {en:"Touchy", cr:"Vexé vit"}, {en:"Timid", cr:"Poltro"}],
@@ -169,7 +171,7 @@
         [{en:"Loud", cr:"Ekiyan"}, {en:"Assertive", cr:"Forse"}, {en:"Solitary", cr:"Tousel"}, {en:"Lazy", cr:"Feneant"}],
         [{en:"Restless", cr:"Bouse-bouse"}, {en:"Hot-headed", cr:"Koler sode"}, {en:"Suspicious", cr:"Dout dimoun"}, {en:"Slow-moving", cr:"Lent"}],
         [{en:"Easily bored", cr:"Fatig vit"}, {en:"Careless", cr:"Pa foupamal"}, {en:"Vindictive", cr:"Vanzé"}, {en:"Grudging", cr:"Grogne"}],
-        [{en:"Fickle", cr:"Sanzé"}, {en:"Crafty", cr:"Malin"}, {en:"Critical", cr:"Zize"}, {en:"Compromising", cr:"Lase mem"}] // Page 4 Ends
+        [{en:"Fickle", cr:"Sanzé"}, {en:"Crafty", cr:"Malin"}, {en:"Critical", cr:"Zize"}, {en:"Compromising", cr:"Lase mem"}]
     ];
 
     const motiQuestions = [
