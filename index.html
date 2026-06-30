@@ -39,6 +39,7 @@
         .chart-container { background: #fff; padding: 20px; border: 1px solid var(--border); border-radius: 12px; min-height: 350px; }
         .guide-box { background: #f8fafc; border: 1px solid var(--border); padding: 25px; border-radius: 12px; margin-top: 25px; }
         .style-card { padding: 25px; border-radius: 8px; background: #fff; border-left: 5px solid var(--primary); margin-top: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .style-card.moti-style { border-left-color: #2563eb; }
         .style-card h4 { margin-top: 0; margin-bottom: 12px; font-size: 1.25rem; color: #111827; }
         .style-card p { margin-bottom: 10px; font-size: 1rem; }
         .creole-text { color: #b45309; font-style: italic; font-weight: 500; display: block; margin-top: 4px; border-top: 1px dashed #fed7aa; padding-top: 4px; }
@@ -100,6 +101,11 @@
         <div class="guide-box">
             <h3>💡 Your Primary Teaching Style</h3>
             <div class="style-card" id="style-feedback-card"></div>
+        </div>
+
+        <div class="guide-box" style="margin-top: 20px;">
+            <h3>🔥 Your Top Educational Motivator</h3>
+            <div class="style-card moti-style" id="moti-feedback-card"></div>
         </div>
 
         <div class="ai-bridge-box">
@@ -167,7 +173,6 @@
         [{en:"Fickle", cr:"Sanzé"}, {en:"Crafty", cr:"Malin"}, {en:"Critical", cr:"Zize"}, {en:"Compromising", cr:"Lase mem"}]
     ];
 
-    // 🇲🇺 Motivation Questions with Creole Bilingual Support
     const motiQuestions = [
         {en:"1. Learn new educational theories or EdTech tools.", cr:"Aprann bann nouvo teori edikasion ou-bien bann zouti EdTech."},
         {en:"2. Clear ministry guidelines and well-defined assessment criteria.", cr:"Bann direktiv kler depi minister ek bann kriter evalitasion bien definie."},
@@ -178,7 +183,7 @@
         {en:"7. Understand how a task genuinely benefits the students.", cr:"Konpran kouma sa travay-la pou ed mo bann zelev vrema."},
         {en:"8. Warm staffroom culture and strong professional bonds.", cr:"Ena enn bon kiltir dan staffroom ek bann lien bien solid ar mo bann koleg."},
         {en:"9. Lack of practical incentives reduces my drive.", cr:"Si mank bann inaktiv finansie, sa diminie mo lenerzi pou travay."},
-        {en:"10. dedidate time to prepare activities, but taken for granted.", cr:"Mo pass boukou letan prepar mo bann laktivite, me administrasion pa rekonet sa."},
+        {en:"10. Dedicated time to prepare activities, but taken for granted.", cr:"Mo pass boukou letan prepar mo bann laktivite, me administrasion pa rekonet sa."},
         {en:"11. Performance metrics compared triggers my competitive drive.", cr:"Kan mo get bann rezilta konparé, sa motiv mo lespri konpetitif."},
         {en:"12. Drained when routine consists solely of repetitive paperwork.", cr:"Mo fatigé kan ena zis paperasse repetitif pou fer toulézour."},
         {en:"13. Micro-management from school administrators dampens drive.", cr:"Micro-management depi administrasion touf mo kréativité."},
@@ -230,12 +235,10 @@
     function showCurrentDiscPage() {
         for(let p=1; p<=4; p++) { document.querySelectorAll(`.disc-q-page-${p}`).forEach(el => el.style.display = 'none'); }
         document.querySelectorAll(`.disc-q-page-${currentSubPage}`).forEach(el => el.style.display = 'block');
-        const titles = { 
-            1: "✨ Interaction (1/4)", 2: "🎯 Challenges (2/4)", 3: "⚡ Pressure (3/4)", 4: "🔋 Drained (4/4)" 
-        };
+        const titles = { 1: "✨ Interaction (1/4)", 2: "🎯 Challenges (2/4)", 3: "⚡ Pressure (3/4)", 4: "🔋 Drained (4/4)" };
         document.getElementById('disc-page-title').innerText = titles[currentSubPage];
         document.getElementById('btn-disc-prev').style.display = currentSubPage === 1 ? 'none' : 'block';
-        document.getElementById('btn-disc-next').innerText = currentSubPage === 4 ? "Next Step ➡️" : "Next ➡️";
+        document.getElementById('btn-disc-next').innerText = currentSubPage === 4 ? "Proceed to Motivation Survey ➡️" : "Next ➡️";
     }
 
     function moveDiscPage(direction) {
@@ -261,7 +264,7 @@
         document.getElementById('tab-headers').style.display = 'none';
         switchSection('section-result');
         document.getElementById('res-name').innerText = userInfo.nickname;
-        renderCharts(X, Y, scores); renderStyleFeedback(X, Y); generateAIPrompt(X, Y, scores);
+        renderCharts(X, Y, scores); renderStyleFeedback(X, Y); renderMotivationFeedback(scores); generateAIPrompt(X, Y, scores);
         const payload = { school: userInfo.school, nickname: userInfo.nickname, subject: userInfo.subject, X: X, Y: Y, scores: scores };
         fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     }
@@ -284,38 +287,86 @@
         });
     }
 
-    // 🇲🇺 Result explanations with Creole Bilingual Support
     function renderStyleFeedback(X, Y) {
         let card = document.getElementById('style-feedback-card');
         if (X >= 0 && Y >= 0) {
             card.innerHTML = `
                 <h4>🎯 [Quadrant I] Goal-Oriented Leadership (D-Style)</h4>
                 <p><strong>Profile:</strong> You are a driving force, leading students with clear vision and decisive action.</p>
-                <span class="creole-text">Ou enn lafors dan klas, ou ena enn vizion kler ek ou transe kan bizin desidé.</span>
-                <p><strong>Instruction:</strong> Flipped learning and project-based missions work best for you.</p>
-                <span class="creole-text">Bann prozé kiltir '성과' (rezilta) ek bann aktivite bien strukturé pli bon pou ou.</span>`;
+                <span class="creole-text">Ou enn lafors dan klas, ou ena enn vizion kler ek ou transe kan bizin desidé.</span>`;
         } else if (X < 0 && Y >= 0) {
             card.innerHTML = `
                 <h4>✨ [Quadrant II] Interactive Communication (I-Style)</h4>
                 <p><strong>Profile:</strong> You create an energetic, positive, and collaborative classroom climate.</p>
-                <span class="creole-text">Ou kréé enn lanbians pozitif ek plen lenerzi; ou kontan koz-koze ar ou bann zelev.</span>
-                <p><strong>Instruction:</strong> Peer debates, roleplays, and brainstorming session are your strengths.</p>
-                <span class="creole-text">Bann deba, roleplays, ek laktivite kot zelev donn zot lide pli top ar ou.</span>`;
+                <span class="creole-text">Ou kréé enn lanbians pozitif ek plen lenerzi; ou kontan koz-koze ar ou bann zelev.</span>`;
         } else if (X < 0 && Y < 0) {
             card.innerHTML = `
                 <h4>🤝 [Quadrant III] Supportive Servant Leader (S-Style)</h4>
                 <p><strong>Profile:</strong> You provide an exceptionally safe and emotionally secure learning ecosystem.</p>
-                <span class="creole-text">Ou enn 치유자 (reparer nam); ou rann ou klas enn plas trankil kot zelev santi zot an sekirite.</span>
-                <p><strong>Instruction:</strong> Collaborative mentoring and structured cooperative modules thrive here.</p>
-                <span class="creole-text">Ou kontan travay an-group ek ed sak zelev pou ki person pa res deryer.</span>`;
+                <span class="creole-text">Ou rann ou klas enn plas trankil kot zelev santi zot an sekirite ek protezé.</span>`;
         } else {
             card.innerHTML = `
-                <h4>🔍 [Quadrant IV] Systematic expert Mentorship (C-Style)</h4>
+                <h4>🔍 [Quadrant IV] Systematic Expert Mentorship (C-Style)</h4>
                 <p><strong>Profile:</strong> You prioritize academic rigor, logic, and highly objective assessment criteria.</p>
-                <span class="creole-text">Ou prioritiz rigour akademik ek bann kriter evalitasion bien kler ek objektif.</span>
-                <p><strong>Instruction:</strong> Data tracking and academic research papers highlight your precision.</p>
-                <span class="creole-text">Ou bien fer bann resers ek analyze bann done pou ed zelev gagn enn bon standar.</span>`;
+                <span class="creole-text">Ou prioritiz rigour akademik ek bann kriter evalitasion bien kler ek objektif.</span>`;
         }
+    }
+
+    // 🌟 자바스크립트 자체 연산으로 8대 동기 중 1등을 찾아 크레올어로 띄워주는 핵심 엔진
+    function renderMotivationFeedback(scores) {
+        let sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+        let topMoti = sorted[0][0]; 
+        let card = document.getElementById('moti-feedback-card');
+
+        const motiDataMap = {
+            "Professional Growth": {
+                title: "📚 Professional Growth",
+                en: "You are highly driven by learning and self-improvement. You feel accomplished when mastering new educational methods, theories, or EdTech tools.",
+                cr: "Ou gany lenerzi kan ou aprann bann nouvo kitsoz, metod pedagogik, ou-bien edteck pou devlop ou bann kapasite par ou-mem."
+            },
+            "Organizational Stability": {
+                title: "🛡️ Organizational Stability",
+                en: "You thrive when structural clarity and predictability are guaranteed. Clear rules, transparent administration, and well-defined rubrics allow you to teach at your best.",
+                cr: "Ou kontan kan tou kitsoz kler ek ena enn bon lorganizasion preidktib. Bann regleman ek kriter bien definie ed ou travay bien."
+            },
+            "Rewards & Incentives": {
+                title: "💰 Rewards & Incentives",
+                en: "You value clear professional returns and tangible outcomes. Practical financial rewards, allowances, or specialized funding act as effective triggers for your hard work.",
+                cr: "Ou kontan kan gany bann rekonpans materyel ou inaktiv finansie pou sa bann zofor ki ou pe met dan ou bann travay."
+            },
+            "Teaching Autonomy": {
+                title: "🔓 Teaching Autonomy",
+                en: "You possess a powerful independent spirit. You feel most motivated when you have the freedom to design your classroom space, pacing, and curriculum strategy.",
+                cr: "Ou ena enn gran lespri independan. Ou pli performan kan ou ena laliberté net pou desid kouma pou amenn ou klas ek ou leson."
+            },
+            "Recognition & Feedback": {
+                title: "👏 Recognition & Feedback",
+                en: "Emotional reassurance and structural respect drive your passion. Sincere gratitude, praise, and constructive feedback from peer groups or parents fuel your journey.",
+                cr: "Ou bizin rekonpans imoral. Bann ti 'mersi' ek lankourazman depi bann paran, koleg ek zelev sa amenn enn gran lafyerte dan ou leker."
+            },
+            "Performance & Competition": {
+                title: "🏆 Performance & Competition",
+                en: "You possess a powerful achievement mindset. You feel energized when benchmark data shows your growth, or when spearheading highly visible school initiatives.",
+                cr: "Ou ena lespri ganyé ek konpetision. Ou kontan releve bann defi ek reusi pli bien pou montre ou bann talan ek kapasite."
+            },
+            "Educational Purpose": {
+                title: "🌱 Educational Purpose",
+                en: "You are driven by deep professional meaning. Even without external rewards, seeing a single student make authentic, positive transformations gives you profound purpose.",
+                cr: " 명분 명 명 Ou sers enn sans edikasion sinser. Mem pa gany rekonpans, kan ou truv enn sel zelev devlop an bien, sa rann ou lavi anseignan zoli net."
+            },
+            "Peer Relationships": {
+                title: "❤️ Peer Relationships",
+                en: "Social harmony and supportive network systems are your foundations. Genuine camaraderie in the staffroom and psychological safety among peers are critical to your performance.",
+                cr: "Linite ek lape dan lekol pli inportan pou ou. Enn bon relasion solid ek fraternel dan staffroom anpes ou gagn fatig profesional."
+            }
+        };
+
+        let match = motiDataMap[topMoti];
+        card.innerHTML = `
+            <h4>${match.title}</h4>
+            <p><strong>English:</strong> ${match.en}</p>
+            <span class="creole-text"><strong>Creole:</strong> ${match.cr}</span>
+        `;
     }
 
     function generateAIPrompt(X, Y, scores) {
