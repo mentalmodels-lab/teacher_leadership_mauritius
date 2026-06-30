@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Evaluation: Personal Tendencies & Teaching Style</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --primary: #059669; --success: #10b981; --bg: #f0fdf4; --card: #ffffff; --text: #1e293b; --border: #cbd5e1; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.6; }
+        .container { max-width: 900px; margin: 0 auto; background: var(--card); padding: 40px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        h1, h2 { text-align: center; color: var(--primary); }
+        .tab-buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
+        .tab-btn { padding: 12px 24px; border: 1px solid var(--border); background: #fff; cursor: pointer; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+        .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .survey-section { display: none; }
+        .survey-section.active { display: block; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-weight: bold; margin-bottom: 8px; }
+        .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        .q-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .q-title { font-weight: bold; margin-bottom: 12px; font-size: 1.1rem; color: #0f172a; }
+        .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+        .opt-label { background: #fff; padding: 10px 5px; border-radius: 8px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: 0.2s; display: block; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .opt-label span { display: block; }
+        .opt-title { font-size: 1.05rem; font-weight: 500; color: #1e293b; }
+        .opt-creole { font-size: 0.8rem; color: #b45309; margin-top: 3px; font-style: italic; font-weight: bold; }
+        .opt-label:hover { border-color: #94a3b8; }
+        input[type="radio"] { display: none; }
+        input[type="radio"]:checked + .opt-label { border-color: var(--primary); background: #dcfce7; }
+        input[type="radio"]:checked + .opt-label .opt-title { color: var(--primary); font-weight: bold; }
+        input[type="radio"]:checked + .opt-label .opt-creole { color: #059669; }
+        
+        .motivation-options { display: flex; flex-direction: row; justify-content: flex-start; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+        .score-label { padding: 10px 20px; min-width: 70px; box-sizing: border-box; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; text-align: center; transition: 0.2s; background: #fff; }
+        input[type="radio"]:checked + .score-label { border-color: var(--primary); background: #dcfce7; color: var(--primary); font-weight: bold; }
+
+        .btn-submit { display: block; width: 100%; padding: 15px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 30px; }
+        .btn-submit:hover { background: #047857; }
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; }
+        @media (max-width: 768px) { .result-grid { grid-template-columns: 1fr; } }
+        .chart-container { background: #fff; padding: 20px; border: 1px solid var(--border); border-radius: 12px; min-height: 350px; }
+        .guide-box { background: #f8fafc; border: 1px solid var(--border); padding: 25px; border-radius: 12px; margin-top: 25px; }
+        .style-card { padding: 25px; border-radius: 8px; background: #fff; border-left: 5px solid var(--primary); margin-top: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .style-card h4 { margin-top: 0; margin-bottom: 12px; font-size: 1.25rem; color: #111827; }
+        .style-card p { margin-bottom: 12px; line-height: 1.7; }
+
+        .ai-bridge-box { background: #f0fdf4; border: 2px dashed var(--success); padding: 25px; border-radius: 12px; margin-top: 30px; text-align: center; }
+        .btn-copy { background: var(--success); color: white; padding: 12px 24px; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.2s; }
+        .btn-data-copy { background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 15px; margin-left: 10px; transition: 0.2s; }
+        #prompt-preview { width: 100%; height: 120px; margin-top: 15px; background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-family: monospace; font-size: 0.85rem; color: #475569; resize: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🇲🇺 Teacher Tendencies & Teaching Style Profile</h1>
+    
+    <div class="tab-buttons" id="tab-headers" style="display: none;">
+        <button class="tab-btn active" id="tab1-btn">Step 1: Behavioural Style</button>
+        <button class="tab-btn" id="tab2-btn">Step 2: Educational Motivation</button>
+    </div>
+
+    <div id="section0" class="survey-section active">
+        <h2>Teacher Information</h2>
+        <p style="text-align:center; color:#64748b;">Please enter your basic professional profile before starting the diagnostic survey.</p>
+        <div style="max-width: 500px; margin: 40px auto 0 auto;">
+            <div class="input-group"><label for="user-school">School Name</label><input type="text" id="user-school" placeholder="e.g., Royal College Port Louis"></div>
+            <div class="input-group"><label for="user-nickname">Teacher Name / Nickname</label><input type="text" id="user-nickname" placeholder="e.g., Mr. Smith"></div>
+            <div class="input-group"><label for="user-subject">Subject / Grade</label><input type="text" id="user-subject" placeholder="e.g., Mathematics / Grade 10"></div>
+            <button class="btn-submit" onclick="startSurvey()">Start Diagnostic Profile 🚀</button>
+        </div>
+    </div>
+
+    <div id="section1" class="survey-section">
+        <h2 id="disc-page-title">✨ Step 1: Your Daily Interaction Style (1/4)</h2>
+        <p style="text-align:center; color:#64748b; margin-bottom:25px;">Select ONE word per question that best describes your typical response in a school environment.</p>
+        <div id="disc-questions"></div>
+        <div style="display: flex; gap: 15px; margin-top: 25px;">
+            <button type="button" id="btn-disc-prev" class="btn-submit" style="background:#64748b; margin-top:0; display:none;" onclick="moveDiscPage(-1)">⬅️ Previous</button>
+            <button type="button" id="btn-disc-next" class="btn-submit" style="margin-top:0;" onclick="moveDiscPage(1)">Next Step ➡️</button>
+        </div>
+    </div>
+
+    <div id="section2" class="survey-section">
+        <h2>Step 2: What Drives You as an Educator?</h2>
+        <p style="text-align:center; color:#64748b;">Rate each statement based on how well it aligns with your personal values (1 = Strongly Disagree, 5 = Strongly Agree).</p>
+        <div id="motivation-questions"></div>
+        <button class="btn-submit" onclick="calculateResults()">View Diagnostic Report 📊</button>
+    </div>
+
+    <div id="section-result" class="survey-section">
+        <h2>📊 Profile Report for <span id="res-name"></span></h2>
+        
+        <div class="result-grid">
+            <div class="chart-container"><h3 style="text-align:center;">Teaching Style Grid Position</h3><canvas id="discChart"></canvas></div>
+            <div class="chart-container"><h3 style="text-align:center;">8 Key Pillars of Educational Motivation</h3><canvas id="motiChart"></canvas></div>
+        </div>
+
+        <div class="guide-box">
+            <h3>💡 Your Primary Teaching Style</h3>
+            <div class="style-card" id="style-feedback-card"></div>
+        </div>
+
+        <div class="ai-bridge-box">
+            <h3>🤖 Connect to Your Personal AI Assistant</h3>
+            <p>Your diagnostic profile data is ready. Click below to copy the prompt and paste it into an AI assistant (such as ChatGPT, Claude, or Gemini) for a personalized breakdown.</p>
+            
+            <div style="margin-bottom: 5px;">
+                <button class="btn-copy" onclick="copyPromptToClipboard()">📋 Copy AI Analysis Prompt</button>
+                <button class="btn-data-copy" onclick="copyRawDataToClipboard()">📌 Copy Raw Result Text Only</button>
+            </div>
+            
+            <small style="color: #64748b; display: block; margin-top: 10px;">* Press Ctrl+V (or Cmd+V) to paste the contents into your preferred AI chat platform.</small>
+            <textarea id="prompt-preview" style="display:none;" readonly></textarea>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Configured with your official Mauritian evaluation script url
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRcDnDvUPLJnM6UOGiqnxumiUm4QTN60N2-zMPHFlXHNN0zsjh5OBQBn0lAbN3LlSEUw/exec";
+
+    let userInfo = { school: "", nickname: "", subject: "" };
+    let currentSubPage = 1;
+    let rawResultText = ""; 
+
+    // 🇲🇺 English + Mauritian Creole 1:1 mapping for local alignment
+    const discData = [
+        [{en:"Lively", cr:"Vivan"}, {en:"Adventurous", cr:"Aventire"}, {en:"Analytical", cr:"Analitik"}, {en:"Easy-going", cr:"Trankil"}],
+        [{en:"Cheerful", cr:"Zwaye"}, {en:"Persuasive", cr:"Persuazif"}, {en:"Strong-willed", cr:"Tete dir"}, {en:"Quiet", cr:"Pozé"}],
+        [{en:"Sociable", cr:"Sosial"}, {en:"Self-determined", cr:"Determiné"}, {en:"Self-sacrificing", cr:"Donn so lavi"}, {en:"Submissive", cr:"Obeisan"}],
+        [{en:"Charming", cr:"Sarmant"}, {en:"Competitive", cr:"Konpetitif"}, {en:"Considerate", cr:"Konsideré"}, {en:"Restrained", cr:"Kalkilé"}],
+        [{en:"Innovative", en:"Innovative", cr:"Kreatif"}, {en:"Competent", cr:"Kapab"}, {en:"Respectful", cr:"Respekté"}, {en:"Reserved", cr:"Diskre"}],
+        [{en:"Animated", cr:"Plen lenerzi"}, {en:"Independent", cr:"Indepandan"}, {en:"Sensitive", cr:"Sansib"}, {en:"Accepting", cr:"Aksepté"}],
+        [{en:"Encouraging", cr:"Ankourazan"}, {en:"Assertive", cr:"Konfidan"}, {en:"Planful", cr:"Organisé"}, {en:"Patient", cr:"Pasyan"}],
+        [{en:"Impulsive", cr:"Spontané"}, {en:"Confident", cr:"Sır de li"}, {en:"Systematic", cr:"Sistematik"}, {en:"Taciturn", cr:"Pa koz boukou"}],
+        [{en:"Optimistic", cr:"Pozitif"}, {en:"Frank", cr:"Frank"}, {en:"Orderly", cr:"Met ord"}, {en:"Kind", cr:"Zanti"}],
+        [{en:"Humorous", cr:"Komik"}, {en:"Firm", cr:"Ferm"}, {en:"Conscientious", cr:"Seryé"}, {en:"Friendly", cr:"Kamrad"}], // Page 1 Ends
+        
+        [{en:"Delightful", cr:"Gayar"}, {en:"Fearless", cr:"Pa per naryen"}, {en:"Meticulous", cr:"Pran swen"}, {en:"Affable", cr:"Akueyan"}],
+        [{en:"Jovial", cr:"Kontan riye"}, {en:"Confident", cr:"Asiré"}, {en:"Dignified", cr:"Onotab"}, {en:"Stable", cr:"Stabil"}],
+        [{en:"Inspiring", cr:"Inspiran"}, {en:"Independent", cr:"Lib"}, {en:"Idealistic", cr:"Idealist"}, {en:"Mild", cr:"Dousman"}],
+        [{en:"Affectionate", cr:"Afeqtyé"}, {en:"Decisive", cr:"Transe"}, {en:"Absorbed", cr:"Konsantré"}, {en:"Nonchalant", cr:"Pa trakase"}],
+        [{en:"Sociable", cr:"Kontan dimoun"}, {en:"Assertive", cr:"Poz so lide"}, {en:"Artistic", cr:"Artist"}, {en:"Mediator", cr:"Zuzé"}],
+        [{en:"Talkative", cr:"Kozalor"}, {en:"Achieving", cr:"Gany rezilta"}, {en:"Cautious", cr:"Pridan"}, {en:"Generous", cr:"Zenere"}],
+        [{en:"Enthusiastic", cr:"Sover"}, {en:"Responsible", cr:"Responsab"}, {en:"Loyal", cr:"Fidel"}, {en:"Good listener", cr:"Ekout bien"}],
+        [{en:"Showy", cr:"Flasi"}, {en:"Leadership", cr:"Komandan"}, {en:"Organized", cr:"Regle"}, {en:"Contented", cr:"Kontan mem"}],
+        [{en:"Popular", cr:"Popiler"}, {en:"Productive", cr:"Produtif"}, {en:"Perfectionistic", cr:"Parfe"}, {en:"Comforting", cr:"Konsolaz}].toLowerCase()],
+        [{en:"Vibrant", cr:"Vibran"}, {en:"Bold", cr:"Kourazyé"}, {en:"Polite", cr:"Polite"}, {en:"Balanced", cr:"Ekilibré"}], // Page 2 Ends
+        
+        [{en:"Cheeky", cr:"Kokin"}, {en:"Overbearing", cr:"Domi-domi"}, {en:"Shy", cr:"Sofi"}, {en:"Expressionless", cr:"Pa montre naryen"}],
+        [{en:"Disorganized", cr:"An-dezor"}, {en:"Cold", cr:"Glase"}, {en:"Unforgiving", cr:"Gardan rankın"}, {en:"Unenthusiastic", cr:"Pa tande"}],
+        [{en:"Repetitive", cr:"Radote"}, {en:"Confrontational", cr:"Sers lager"}, {en:"Resentful", cr:"Ankoler"}, {en:"Reluctant", cr:"Pa le ale"}],
+        [{en:"Forgetful", cr:"Bliyé"}, {en:"Blunt", cr:"Kase-brize"}, {en:"Fussy", cr:"Takine"}, {en:"Fearful", cr:"Poltro"},],
+        [{en:"Interrupting", cr:"Koup koze"}, {en:"Impatient", cr:"Pa kapav tann"}, {en:"Insecure", cr:"Pa asiré"}, {en:"Indecisive", cr:"Douté"}],
+        [{en:"Unpredictable", cr:"Bizar"}, {en:"Unaffectionate", cr:"Dır"}, {en:"Unpopular", cr:"Pa kontan li"}, {en:"Passive", cr:"Asiz tousıl"}],
+        [{en:"Haphazard", cr:"Melanzé"}, {en:"Stubborn", cr:"Latet dir"}, {en:"Hard to please", cr:"Difikıl"}, {en:"Hesitant", cr:"Tike"}],
+        [{en:"People-pleasing", cr:"Suiv lezot"}, {en:"Proud", cr:"Fier dor"}, {en:"Pessimistic", cr:"Nwar mem"}, {en:"Mediocre", cr:"Normal-normal"}],
+        [{en:"Short-tempered", cr:"Koler sode"}, {en:"Argumentative", cr:"Kontredır"}, {en:"Alienated", cr:"Izolé"}, {en:"Aimless", cr:"Pa konn kot ale"}],
+        [{en:"Simplistic", cr:"Tandis"}, {en:"Conceited", cr:"Gran nwar"}, {en:"Negative", cr:"Pa bon"}, {en:"Undemonstrative", cr:"Kasyet lide"}], // Page 3 Ends
+        
+        [{en:"Boastful", cr:"Vandere"}, {en:"Workaholic", cr:"T rasi"}, {en:"Introverted", cr:"Kasyet lavi"}, {en:"Worrisome", cr:"Trakasé"}],
+        [{en:"Talkative", cr:"Koz-kozé"}, {en:"Blunt", cr:"Dır mém"}, {en:"Touchy", cr:"Vexé vit"}, {en:"Timid", cr:"Poltro"}],
+        [{en:"Messy", cr:"Dizoli"}, {en:"Domineering", cr:"Mofitan"}, {en:"Easily discouraged", cr:"Lage vit"}, {en:"Weak-willed", cr:"Flou"}],
+        [{en:"Inconsistent", cr:"Sanz-sanze"}, {en:"Intolerant", cr:"Pa toler naryen"}, {en:"Reserved", cr:"Fermé"}, {en:"Indifferent", cr:"Pa mélé"}],
+        [{en:"Untidy", cr:"Gopia"}, {en:"Manipulative", cr:"Zwe rol"}, {en:"Melancholy", cr:"Trist"}, {en:"Complaining", cr:"Grogne"}],
+        [{en:"Showy", cr:"Zoli-zoli"}, {en:"Obstinate", cr:"Pa sanz lide"}, {en:"Skeptical", cr:"Dout tou"}, {en:"Slow-paced", cr:"Dousman-dousman"}],
+        [{en:"Loud", cr:"Ekiyan"}, {en:"Assertive", cr:"Forse"}, {en:"Solitary", cr:"Tousel"}, {en:"Lazy", cr:"Feneant"}],
+        [{en:"Restless", cr:"Bouse-bouse"}, {en:"Hot-headed", cr:"Koler sode"}, {en:"Suspicious", cr:"Dout dimoun"}, {en:"Slow-moving", cr:"Lent"}],
+        [{en:"Easily bored", cr:"Fatig vit"}, {en:"Careless", cr:"Pa foupamal"}, {en:"Vindictive", cr:"Vanzé"}, {en:"Grudging", cr:"Grogne"}],
+        [{en:"Fickle", cr:"Sanzé"}, {en:"Crafty", cr:"Malin"}, {en:"Critical", cr:"Zize"}, {en:"Compromising", cr:"Lase mem"}] // Page 4 Ends
+    ];
+
+    const motiQuestions = [
+        "1. I feel highly energized when I have the opportunity to learn new educational theories or EdTech tools and apply them to my classes. (Professional Growth)",
+        "2. I work best when there are clear ministry guidelines, institutional rules, and well-defined assessment criteria. (Organizational Stability)",
+        "3. Clear financial incentives, extra duty allowance, or research grants significantly increase my professional drive. (Rewards & Incentives)",
+        "4. I feel motivated when I have complete autonomy to design my lessons, choose my pacing, and establish my classroom rules. (Teaching Autonomy)",
+        "5. Receiving sincere appreciation from colleagues, parents, and students makes my hard work feel truly worthwhile. (Recognition & Feedback)",
+        "6. I aim to lead pilot school programs or achieve excellent results in educational research contests to validate my professional capabilities. (Performance & Competition)",
+        "7. I am only fully committed to an administrative task or curriculum when I clearly understand how it genuinely benefits the students. (Educational Purpose)",
+        "8. A warm, supportive staffroom culture and strong professional bonds with fellow teachers are the most critical factors for my job satisfaction. (Peer Relationships)",
+        "9. Even if the workplace environment is friendly, a lack of practical financial incentives or proper recognition reduces my drive for administrative duties. (Rewards & Incentives)",
+        "10. I experience professional fatigue if I dedicate significant personal time to preparing classroom activities, but the administration or parents take it for granted. (Recognition & Feedback)",
+        "11. Seeing performance metrics or class achievement benchmarks visualized and compared with others triggers my competitive drive. (Performance & Competition)",
+        "12. I find it deeply draining when my routine consists solely of repetitive paperwork or basic database entry without room for professional development. (Professional Growth)",
+        "13. Micro-management or excessive structural control from school administrators quickly dampens my creative teaching drive. (Teaching Autonomy)",
+        "14. Regardless of external praise or financial compensation, seeing a single student make positive changes in their life gives me true purpose. (Educational Purpose)",
+        "15. Toxic workplace drama or unresolved friction among teaching staff significantly reduces my focus and operational efficiency. (Peer Relationships)",
+        "16. I prefer a predictable, structurally secure educational environment over constant, sudden changes in curriculum frameworks or policies. (Organizational Stability)"
+    ];
+
+    function init() {
+        const discContainer = document.getElementById('disc-questions');
+        discContainer.innerHTML = '';
+        discData.forEach((row, qIdx) => {
+            let pageNum = Math.floor(qIdx / 10) + 1; 
+            let html = `<div class="q-card disc-q-page-${pageNum}" style="display: none;">
+                <div class="q-title">Question ${qIdx + 1}</div>
+                <div class="options-grid">`;
+            row.forEach((obj, colIdx) => { 
+                html += `
+                    <input type="radio" id="d_${qIdx}_${colIdx}" name="disc_${qIdx}" value="${colIdx}">
+                    <label for="d_${qIdx}_${colIdx}" class="opt-label">
+                        <span class="opt-title">${obj.en}</span>
+                        <span class="opt-creole">(${obj.cr})</span>
+                    </label> `; 
+            });
+            discContainer.innerHTML += html + `</div></div>`;
+        });
+
+        const motiContainer = document.getElementById('motivation-questions');
+        motiContainer.innerHTML = '';
+        motiQuestions.forEach((qText, qIdx) => {
+            let html = `<div class="q-card"><div class="q-title">${qText}</div><div class="motivation-options">`;
+            for(let i=1; i<=5; i++) { html += `<input type="radio" id="m_${qIdx}_${i}" name="moti_${qIdx}" value="${i}"><label for="m_${qIdx}_${i}" class="score-label">${i}</label> `; }
+            motiContainer.innerHTML += html + `</div></div>`;
+        });
+    }
+
+    function switchSection(secId) {
+        document.querySelectorAll('.survey-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(secId).classList.add('active');
+    }
+
+    function startSurvey() {
+        const sch = document.getElementById('user-school').value.trim();
+        const nick = document.getElementById('user-nickname').value.trim();
+        const subj = document.getElementById('user-subject').value.trim();
+        if(!sch || !nick || !subj) { alert("Please complete all profile details to begin."); return; }
+        userInfo = { school: sch, nickname: nick, subject: subj };
+        document.getElementById('section0').classList.remove('active');
+        document.getElementById('tab-headers').style.display = 'flex';
+        switchSection('section1');
+        currentSubPage = 1; showCurrentDiscPage(); window.scrollTo(0,0);
+    }
+
+    function showCurrentDiscPage() {
+        for(let p=1; p<=4; p++) { document.querySelectorAll(`.disc-q-page-${p}`).forEach(el => el.style.display = 'none'); }
+        document.querySelectorAll(`.disc-q-page-${currentSubPage}`).forEach(el => el.style.display = 'block');
+        const titles = { 
+            1: "✨ Step 1: Your Daily Interaction Style (1/4)", 
+            2: "🎯 Step 1: Handling Challenges & Responsibilities (2/4)", 
+            3: "⚡ Step 1: Responses Under Pressure (3/4)", 
+            4: "🔋 Step 1: Behavioural Shifts When Drained (4/4)" 
+        };
+        document.getElementById('disc-page-title').innerText = titles[currentSubPage];
+        document.getElementById('btn-disc-prev').style.display = currentSubPage === 1 ? 'none' : 'block';
+        document.getElementById('btn-disc-next').innerText = currentSubPage === 4 ? "Proceed to Motivation Survey ➡️" : "Next ➡️";
+    }
+
+    function moveDiscPage(direction) {
+        if (direction === 1) {
+            let startIdx = (currentSubPage - 1) * 10;
+            for (let i = startIdx; i < startIdx + 10; i++) { if (!document.querySelector(`input[name="disc_${i}"]:checked`)) { alert(`Please select an answer for question ${i + 1}.`); return; } }
+        }
+        currentSubPage += direction;
+        if (currentSubPage > 4) {
+            document.getElementById('tab1-btn').classList.remove('active');
+            document.getElementById('tab2-btn').classList.add('active');
+            switchSection('section2'); window.scrollTo(0,0);
+        } else { showCurrentDiscPage(); window.scrollTo(0,0); }
+    }
+
+    function calculateResults() {
+        for(let i=0; i<16; i++) { if(!document.querySelector(`input[name="moti_${i}"]:checked`)) { alert(`Please provide a rating for all statements in Step 2.`); return; } }
+        let colSum = [0, 0, 0, 0];
+        for(let i=0; i<40; i++) { colSum[parseInt(document.querySelector(`input[name="disc_${i}"]:checked`).value)]++; }
+        let X = colSum[2] - colSum[0]; let Y = colSum[1] - colSum[3]; 
+        const getMotiVal = (idx) => parseInt(document.querySelector(`input[name="moti_${idx}"]:checked`).value);
+        
+        let scores = { 
+            "Rewards & Incentives": getMotiVal(2)+getMotiVal(8), 
+            "Recognition & Feedback": getMotiVal(4)+getMotiVal(9), 
+            "Professional Growth": getMotiVal(0)+getMotiVal(11), 
+            "Teaching Autonomy": getMotiVal(3)+getMotiVal(12), 
+            "Educational Purpose": getMotiVal(6)+getMotiVal(13), 
+            "Organizational Stability": getMotiVal(1)+getMotiVal(15), 
+            "Peer Relationships": getMotiVal(7)+getMotiVal(14), 
+            "Performance & Competition": getMotiVal(5)+getMotiVal(10) 
+        };
+        document.getElementById('tab-headers').style.display = 'none';
+        
+        switchSection('section-result');
+        document.getElementById('res-name').innerText = userInfo.nickname;
+        renderCharts(X, Y, scores); renderStyleFeedback(X, Y); generateAIPrompt(X, Y, scores);
+        
+        const payload = { school: userInfo.school, nickname: userInfo.nickname, subject: userInfo.subject, X: X, Y: Y, scores: scores };
+        fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    }
+
+    function renderCharts(X, Y, scores) {
+        new Chart(document.getElementById('discChart').getContext('2d'), {
+            type: 'scatter',
+            data: { datasets: [{ label: 'Your Position', data: [{x: X, y: Y}], backgroundColor: '#059669', radius: 12 }] },
+            options: { 
+                scales: { 
+                    x: { min: -40, max: 40, 
+                         grid: { color: (ctx) => ctx.tick.value === 0 ? '#1e293b' : '#e2e8f0', lineWidth: (ctx) => ctx.tick.value === 0 ? 3 : 1 } 
+                    }, 
+                    y: { min: -40, max: 40, 
+                         grid: { color: (ctx) => ctx.tick.value === 0 ? '#1e293b' : '#e2e8f0', lineWidth: (ctx) => ctx.tick.value === 0 ? 3 : 1 } 
+                    } 
+                } 
+            }
+        });
+        new Chart(document.getElementById('motiChart').getContext('2d'), {
+            type: 'radar',
+            data: { labels: Object.keys(scores), datasets: [{ label: 'Motivation Score', data: Object.values(scores), backgroundColor: 'rgba(5, 150, 105, 0.15)', borderColor: '#059669', borderWidth: 2 }] },
+            options: { scales: { r: { min: 2, max: 10 } } }
+        });
+    }
+
+    function renderStyleFeedback(X, Y) {
+        let card = document.getElementById('style-feedback-card');
+        if (X >= 0 && Y >= 0) {
+            card.innerHTML = `
+                <h4>🎯 [Quadrant I] Goal-Oriented Leadership Style (D-Style)</h4>
+                <p><strong>Core Profile:</strong> You are a driving force in the classroom, leading students with a clear vision and decisive action. You handle complex academic environments effectively and emphasize result-oriented delivery.</p>
+                <p><strong>Recommended Instructional Architecture:</strong> Flipped classrooms and high-impact Project-Based Learning (PBL) where milestone targets are clear work excellently for your structured mindset.</p>
+                <p><strong>Growth & Synergy Point:</strong> While maintaining excellent classroom management efficiency, incorporating subtle feedback loops for self-paced or emotionally reserved students can elevate your instructional impact.</p>`;
+        } else if (X < 0 && Y >= 0) {
+            card.innerHTML = `
+                <h4>✨ [Quadrant II] Interactive & Inspiring Communication Style (I-Style)</h4>
+                <p><strong>Core Profile:</strong> You naturally create an energetic, positive, and collaborative classroom climate. Your strength lies in empathetic dialogue, active listening, and reducing psychological distances between you and your students.</p>
+                <p><strong>Recommended Instructional Architecture:</strong> Peer debates, dynamic roleplays, and collaborative brainstorming sessions allow you to create an environment where students innovate without fear of failure.</p>
+                <p><strong>Growth & Synergy Point:</strong> Students deeply appreciate your approachability. To maximize long-term outcomes, pair this creative freedom with highly consistent structural boundaries and firm routines.</p>`;
+        } else if (X < 0 && Y < 0) {
+            card.innerHTML = `
+                <h4>🤝 [Quadrant III] Supportive & Nurturing Servant Leader Style (S-Style)</h4>
+                <p><strong>Core Profile:</strong> You provide an exceptionally stable, safe, and emotionally secure learning ecosystem. You consistently look out for at-risk or quieter students, ensuring no learner is structurally isolated.</p>
+                <p><strong>Recommended Instructional Architecture:</strong> Collaborative peer mentoring, structured cooperative learning, and reflective writing/reading modules thrive under your steady guidance.</p>
+                <p><strong>Growth & Synergy Point:</strong> You build an incredibly tight-knit classroom community. Remember to set healthy personal boundaries to protect your professional energy and mitigate burnout risks.</p>`;
+        } else {
+            card.innerHTML = `
+                <h4>🔍 [Quadrant IV] Systematic & Expert Mentorship Style (C-Style)</h4>
+                <p><strong>Core Profile:</strong> You prioritize academic rigor, logical consistency, and highly objective rubric structures. You guide your students using facts, systemic clarity, and high professional standards.</p>
+                <p><strong>Recommended Instructional Architecture:</strong> Well-calibrated rubrics, academic research papers, data analytics tracking, and structured tech integration modules highlight your operational precision.</p>
+                <p><strong>Growth & Synergy Point:</strong> Your institutional reliability is outstanding. Embracing occasional open-ended deviations or sudden spontaneous questions from students can make your learning space feel even more dynamic.</p>`;
+        }
+    }
+
+    function generateAIPrompt(X, Y, scores) {
+        let motiString = Object.entries(scores).map(([k, v]) => `- ${k}: ${v}/10 points`).join("\n");
+        rawResultText = `[Teacher Diagnostic Profile Summary]\n- Institution: ${userInfo.school}\n- Name: ${userInfo.nickname}\n- Assignment: ${userInfo.subject}\n- Behavioural Metrics: X=${X}, Y=${Y}\n- 8 Pillars of Motivation:\n${motiString}`;
+        generatedPrompt = `You are an elite educational consultant and psychological coach specializing in professional teacher professional development.
+Please generate a deeply customized 1:1 professional evaluation report for [${userInfo.nickname}].
+
+[Teacher Professional Metadata]
+- School/Institution: ${userInfo.school}
+- Name: ${userInfo.nickname}
+- Subject/Grade Assignment: ${userInfo.subject}
+
+[Diagnostic Data Profiles]
+1. Teaching Style Grid Position Metrics: X-Axis Coordinate = ${X}, Y-Axis Coordinate = ${Y} 
+2. 8 Key Pillars of Educational Motivation Scores:\n${motiString}
+
+[Required Reporting Structure]
+1. Overall Educational Philosophy Statement & 3 Core Professional Keywords
+2. In-Depth Teaching Style Strengths Analysis (Classroom Instruction & Classroom Management)
+3. Specific Professional Burnout/Fatigue Risk Triggers & Custom Coping Mechanics
+4. Tailored Classroom Systems Strategy & Workplace Efficiency Maximize Tips
+5. Collaborative Framework for Synergizing with Colleagues and Educational Administrators`;
+        document.getElementById('prompt-preview').value = generatedPrompt;
+    }
+
+    function copyPromptToClipboard() {
+        const preview = document.getElementById('prompt-preview');
+        preview.style.display = "block"; preview.select(); document.execCommand('copy'); preview.style.display = "none"; 
+        alert('📋 Professional AI Prompt copied to clipboard!\nPaste it (Ctrl+V) into your AI assistant.');
+    }
+
+    function copyRawDataToClipboard() {
+        const dummy = document.createElement("textarea"); document.body.appendChild(dummy);
+        dummy.value = rawResultText; dummy.select(); document.execCommand('copy'); document.body.removeChild(dummy);
+        alert('📌 Data summary text copied to clipboard!\nPaste it into your chat to ask custom questions.');
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
